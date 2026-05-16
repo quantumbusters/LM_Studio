@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OTS Internal Tooling -- LM Studio — Windows Setup Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181b22;
+    --border: #252830;
+    --border2: #2e3240;
+    --accent: #00d4aa;
+    --accent2: #0099ff;
+    --accent3: #7c4dff;
+    --warn: #ffb347;
+    --danger: #ff5757;
+    --text: #e8eaf0;
+    --text2: #8892a4;
+    --text3: #525d72;
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --body: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.75;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,12,16,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 56px;
+  }
+  .nav-brand {
+    font-family: var(--display);
+    font-size: 17px; font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-brand span { color: var(--text); font-weight: 400; }
+  .nav-links { display: flex; gap: 0; }
+  .nav-links a {
+    font-size: 12px; font-weight: 500;
+    color: var(--text2);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .nav-links a:hover { color: var(--accent); background: rgba(0,212,170,0.07); }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 130px 2rem 80px;
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 420px; gap: 60px; align-items: center;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 500;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block; width: 28px; height: 1px;
+    background: var(--accent);
+  }
+  h1 {
+    font-family: var(--display);
+    font-size: 56px; font-weight: 800; line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+  h1 .hl { color: var(--accent); }
+  .hero-desc {
+    font-size: 16px; color: var(--text2);
+    max-width: 480px; margin-bottom: 32px;
+    line-height: 1.8;
+  }
+  .hero-cta {
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px; border-radius: 8px;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; text-decoration: none;
+    transition: all 0.2s; border: none;
+    font-family: var(--body);
+  }
+  .btn-primary {
+    background: var(--accent); color: #0a0c10;
+  }
+  .btn-primary:hover { background: #00f0c4; }
+  .btn-outline {
+    background: transparent; color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* hero terminal card */
+  .hero-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .card-titlebar {
+    background: var(--surface2);
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+  .card-title { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-left: 6px; }
+  .card-body { padding: 20px; }
+  .cli-line { font-family: var(--mono); font-size: 12.5px; line-height: 2; }
+  .cli-prompt { color: var(--accent); }
+  .cli-cmd { color: var(--text); }
+  .cli-comment { color: var(--text3); }
+  .cli-out { color: var(--text2); }
+  .cli-ok { color: #28c840; }
+  .cli-warn { color: var(--warn); }
+
+  /* ── OVERVIEW STATS ── */
+  .stats-bar {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 2rem;
+  }
+  .stats-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .stat {
+    text-align: center;
+    padding: 0 20px;
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: var(--display);
+    font-size: 32px; font-weight: 800;
+    color: var(--accent); line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; font-family: var(--mono); }
+
+  /* ── SECTION LAYOUT ── */
+  .section {
+    max-width: 1100px; margin: 0 auto;
+    padding: 80px 2rem;
+  }
+  .section-header { margin-bottom: 48px; }
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 11px; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: var(--display);
+    font-size: 36px; font-weight: 700; line-height: 1.1;
+    letter-spacing: -1px; margin-bottom: 12px;
+  }
+  h3 {
+    font-family: var(--display);
+    font-size: 20px; font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .section-desc { color: var(--text2); max-width: 620px; font-size: 15px; }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  /* ── STEPS ── */
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: grid; grid-template-columns: 64px 1fr;
+    gap: 0 28px;
+    position: relative;
+  }
+  .step-num-col {
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .step-num {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--mono); font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-line {
+    flex: 1; width: 2px;
+    background: linear-gradient(to bottom, var(--border2), transparent);
+    margin: 8px 0 0;
+  }
+  .step-content {
+    padding: 0 0 48px;
+  }
+  .step-content:last-child { padding-bottom: 0; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-top: 16px;
+  }
+  .card + .card { margin-top: 12px; }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    background: #07090d;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .code-header {
+    background: var(--surface2);
+    padding: 8px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .code-lang { font-family: var(--mono); font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+  .code-copy {
+    font-family: var(--mono); font-size: 11px; color: var(--text3);
+    cursor: pointer; border: none; background: none;
+    padding: 2px 8px; border-radius: 4px;
+    transition: color 0.2s;
+  }
+  .code-copy:hover { color: var(--accent); }
+  .code-content {
+    padding: 18px 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.9;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text2);
+  }
+  .kw { color: #c792ea; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .fn { color: #82aaff; }
+  .cm { color: var(--text3); font-style: italic; }
+  .hl-line { background: rgba(0,212,170,0.05); display: block; margin: 0 -20px; padding: 0 20px; }
+
+  /* ── NOTES / CALLOUTS ── */
+  .callout {
+    display: flex; gap: 14px;
+    padding: 16px 18px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.5; }
+  .callout.info { background: rgba(0,153,255,0.08); border: 1px solid rgba(0,153,255,0.2); }
+  .callout.info .callout-icon::before { content: 'ℹ'; color: var(--accent2); }
+  .callout.warn { background: rgba(255,179,71,0.08); border: 1px solid rgba(255,179,71,0.2); }
+  .callout.warn .callout-icon::before { content: '⚠'; color: var(--warn); }
+  .callout.tip { background: rgba(0,212,170,0.08); border: 1px solid rgba(0,212,170,0.2); }
+  .callout.tip .callout-icon::before { content: '✦'; color: var(--accent); }
+  .callout-body strong { color: var(--text); }
+
+  /* ── CAPACITY PLANNING TABLE ── */
+  .cap-table-wrap { overflow-x: auto; margin-top: 20px; }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead tr {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border2);
+  }
+  th {
+    padding: 12px 16px; text-align: left;
+    font-family: var(--mono); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text3); font-weight: 500;
+  }
+  td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text2); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .tier-badge {
+    display: inline-block;
+    padding: 2px 10px; border-radius: 20px;
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    text-transform: uppercase;
+  }
+  .tier-entry { background: rgba(0,212,170,0.12); color: var(--accent); }
+  .tier-mid { background: rgba(0,153,255,0.12); color: var(--accent2); }
+  .tier-pro { background: rgba(124,77,255,0.12); color: #a580ff; }
+  .tier-max { background: rgba(255,87,87,0.12); color: #ff8080; }
+
+  /* ── MODEL GRID ── */
+  .model-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; }
+  .model-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .model-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .model-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .model-card.cat-coding::before { background: var(--accent2); }
+  .model-card.cat-general::before { background: var(--accent); }
+  .model-card.cat-reasoning::before { background: #a580ff; }
+  .model-badge {
+    font-family: var(--mono); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 8px; border-radius: 4px;
+    margin-bottom: 10px; display: inline-block;
+  }
+  .model-card.cat-coding .model-badge { background: rgba(0,153,255,0.12); color: var(--accent2); }
+  .model-card.cat-general .model-badge { background: rgba(0,212,170,0.12); color: var(--accent); }
+  .model-card.cat-reasoning .model-badge { background: rgba(165,128,255,0.12); color: #a580ff; }
+  .model-name { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .model-meta { font-size: 12px; color: var(--text3); margin-bottom: 10px; }
+  .model-req { font-size: 12.5px; color: var(--text2); }
+  .model-req span { color: var(--text3); }
+
+  /* ── PERF BARS ── */
+  .perf-item { margin-bottom: 14px; }
+  .perf-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
+  .perf-label .name { color: var(--text2); }
+  .perf-label .val { color: var(--text3); font-family: var(--mono); font-size: 12px; }
+  .perf-bar-bg { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .perf-bar { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+  /* ── INTEGRATION STEPS ── */
+  .integration-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+  .int-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .int-card-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .int-icon {
+    width: 28px; height: 28px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .int-icon.vscode { background: rgba(0,153,255,0.15); }
+  .int-icon.api { background: rgba(0,212,170,0.15); }
+  .int-title { font-family: var(--display); font-size: 15px; font-weight: 600; }
+  .int-body { padding: 18px; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 2rem;
+    text-align: center;
+    color: var(--text3);
+    font-size: 13px;
+    font-family: var(--mono);
+  }
+  footer a { color: var(--text3); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  /* ── MISC ── */
+  .tag-inline {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 1px 7px; border-radius: 4px;
+    color: var(--text2);
+  }
+  .accent { color: var(--accent); }
+  .section-sep { border-top: 1px solid var(--border); }
+  ul.checklist { list-style: none; padding: 0; margin: 12px 0; }
+  ul.checklist li {
+    padding: 5px 0 5px 28px;
+    position: relative; font-size: 14px; color: var(--text2);
+  }
+  ul.checklist li::before {
+    content: '✓';
+    position: absolute; left: 0;
+    color: var(--accent); font-family: var(--mono); font-weight: 600;
+  }
+  ul.checklist li.warn::before { content: '!'; color: var(--warn); }
+  ul.checklist li.req::before { content: '→'; color: var(--text3); }
+
+  /* tab switcher */
+  .tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+  .tab-btn {
+    padding: 7px 16px; border-radius: 6px;
+    font-family: var(--mono); font-size: 12px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--text3);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: rgba(0,212,170,0.1);
+    border-color: var(--accent); color: var(--accent);
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  @media (max-width: 880px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-card { display: none; }
+    h1 { font-size: 38px; }
+    .stats-inner { grid-template-columns: repeat(2,1fr); }
+    .model-grid { grid-template-columns: repeat(2,1fr); }
+    .integration-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">⬡ LM<span>Studio</span> Guide</div>
+  <div class="nav-links">
+    <a href="#install">Install</a>
+    <a href="#capacity">Capacity</a>
+    <a href="#models">Models</a>
+    <a href="#load">Load</a>
+    <a href="#vscode">VSCode</a>
+    <a href="#api">API</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-eyebrow">Windows Setup Guide</div>
+    <h1>Run <span class="hl">Local AI</span><br>on Windows</h1>
+    <p class="hero-desc">A complete technical guide to installing LM Studio, configuring your system for optimal performance, loading models, and integrating with VS Code — everything in one place.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#install">Start Setup →</a>
+      <a class="btn btn-outline" href="#capacity">Capacity Planning</a>
+    </div>
+  </div>
+  <div class="hero-card">
+    <div class="card-titlebar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="card-title">lms-setup.ps1</span>
+    </div>
+    <div class="card-body">
+      <div class="cli-line"><span class="cli-comment"># LM Studio CLI — quick check</span></div>
+      <div class="cli-line"><span class="cli-prompt">PS&gt; </span><span class="cli-cmd">lms status</span></div>
+      <div class="cli-line"><span class="cli-ok">● Server running</span></div>
+      <div class="cli-line cli-out">  Port : 1234</div>
+      <div class="cli-line cli-out">  GPU  : NVIDIA RTX 4070 ✓</div>
+      <div class="cli-line cli-out">  VRAM : 8.2 GB / 12 GB</div>
+      <div class="cli-line">&nbsp;</div>
+      <div class="cli-line"><span class="cli-prompt">PS&gt; </span><span class="cli-cmd">lms ps</span></div>
+      <div class="cli-line"><span class="cli-ok">✓ Qwen2.5-Coder-7B-Q6</span></div>
+      <div class="cli-line cli-out">  ctx : 8192 tokens loaded</div>
+      <div class="cli-line cli-out">  throughput : 42 tok/s</div>
+      <div class="cli-line">&nbsp;</div>
+      <div class="cli-line"><span class="cli-prompt">PS&gt; </span><span class="cli-cmd">lms chat --model qwen</span></div>
+      <div class="cli-line"><span class="cli-warn">▸ Ready. Type your prompt...</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Privacy — runs locally</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">API cost</div></div>
+    <div class="stat"><div class="stat-num">500+</div><div class="stat-label">Compatible models</div></div>
+    <div class="stat"><div class="stat-num">OpenAI</div><div class="stat-label">Compatible API</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION 1 — INSTALLATION
+═══════════════════════════════════════ -->
+<div class="section" id="install">
+  <div class="section-header">
+    <div class="section-tag">// 01 — Installation</div>
+    <h2>Download &amp; Install LM Studio</h2>
+    <p class="section-desc">LM Studio is a desktop app that bundles everything you need: a model hub, an OpenAI-compatible server, and a chat UI. No Python or Docker required.</p>
+  </div>
+
+  <div class="steps">
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-num-col">
+        <div class="step-num">01</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <h3>Check System Requirements</h3>
+        <p style="color:var(--text2);margin-bottom:12px;">Before downloading, verify your machine meets the minimum specs. GPU acceleration is strongly recommended for usable speeds.</p>
+        <div class="card">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Minimum</div>
+              <ul class="checklist">
+                <li>Windows 10 64-bit (build 1903+)</li>
+                <li>16 GB RAM (system)</li>
+                <li>10 GB free disk space</li>
+                <li class="req">Any GPU or CPU-only mode</li>
+                <li class="req">Intel/AMD CPU — AVX2 support</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Recommended</div>
+              <ul class="checklist">
+                <li>Windows 11 64-bit</li>
+                <li>32 GB+ RAM</li>
+                <li>SSD with 50 GB+ space</li>
+                <li>NVIDIA GPU with 8 GB+ VRAM</li>
+                <li>CUDA 12.x drivers</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="callout warn">
+          <div class="callout-icon"></div>
+          <div class="callout-body"><strong>AVX2 is required.</strong> Open PowerShell and run <span class="tag-inline">Get-WmiObject Win32_Processor | Select-Object -Expand Name</span> then check CPU on <a href="https://ark.intel.com" style="color:var(--accent2)">Intel ARK</a> or AMD specs to confirm AVX2 support. Nearly all CPUs from 2013+ have it.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-num-col">
+        <div class="step-num">02</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <h3>Download the Installer</h3>
+        <p style="color:var(--text2);margin-bottom:12px;">Go to the official LM Studio website and grab the Windows installer (.exe). Always download from the official source.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">powershell</span>
+            <button class="code-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <div class="code-content"><span class="cm"># Option A: Download via browser</span>
+<span class="cm"># → https://lmstudio.ai  → Click "Download for Windows"</span>
+
+<span class="cm"># Option B: Download with PowerShell (replace version as needed)</span>
+<span class="kw">$url</span> = <span class="str">"https://releases.lmstudio.ai/windows/LM-Studio-0.3.x-Setup.exe"</span>
+<span class="kw">$dest</span> = <span class="str">"$env:USERPROFILE\Downloads\LM-Studio-Setup.exe"</span>
+<span class="fn">Invoke-WebRequest</span> <span class="kw">-Uri</span> <span class="kw">$url</span> <span class="kw">-OutFile</span> <span class="kw">$dest</span>
+<span class="fn">Start-Process</span> <span class="kw">$dest</span></div>
+        </div>
+        <div class="callout tip">
+          <div class="callout-icon"></div>
+          <div class="callout-body">LM Studio also ships a <strong>portable .zip</strong> version — useful for USB drives or if you don't have admin rights. Extract and run <span class="tag-inline">lm-studio.exe</span> directly.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-num-col">
+        <div class="step-num">03</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <h3>Run the Installer</h3>
+        <p style="color:var(--text2);margin-bottom:12px;">Double-click the downloaded .exe. If Windows SmartScreen appears, click <strong style="color:var(--text)">More info → Run anyway</strong> — LM Studio is unsigned but safe.</p>
+        <ul class="checklist">
+          <li>Accept the license agreement</li>
+          <li>Choose install path (default: <span class="tag-inline">C:\Users\You\AppData\Local\Programs\LM Studio</span>)</li>
+          <li>Check "Create desktop shortcut" and "Start at login" (optional)</li>
+          <li>Click Install — takes under 60 seconds</li>
+          <li>Launch LM Studio when prompted</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-num-col">
+        <div class="step-num">04</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <h3>Install the CLI (lms)</h3>
+        <p style="color:var(--text2);margin-bottom:12px;">LM Studio ships with a powerful command-line interface. Enable it once from the app, then use it from any terminal.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">powershell</span>
+            <button class="code-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <div class="code-content"><span class="cm"># From LM Studio app: Developer tab → "Enable CLI" button</span>
+<span class="cm"># This adds lms to your PATH. Then in PowerShell:</span>
+
+<span class="fn">lms</span> <span class="str">--version</span>    <span class="cm"># confirm install</span>
+<span class="fn">lms</span> <span class="str">status</span>       <span class="cm"># check server status</span>
+<span class="fn">lms</span> <span class="str">ls</span>           <span class="cm"># list downloaded models</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step">
+      <div class="step-num-col">
+        <div class="step-num">05</div>
+      </div>
+      <div class="step-content">
+        <h3>Configure GPU Acceleration</h3>
+        <p style="color:var(--text2);margin-bottom:12px;">This is the single biggest performance lever. LM Studio auto-detects your GPU but you should verify the backend.</p>
+        <div class="card">
+          <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Backend Selection Guide</div>
+          <table>
+            <thead><tr><th>GPU Vendor</th><th>Best Backend</th><th>Setting in LM Studio</th></tr></thead>
+            <tbody>
+              <tr><td>NVIDIA (GTX 10xx+)</td><td style="color:var(--accent)">CUDA (llama.cpp)</td><td><span class="tag-inline">Settings → GPU → CUDA</span></td></tr>
+              <tr><td>AMD (RX 6000+)</td><td style="color:var(--accent2)">ROCm (experimental)</td><td><span class="tag-inline">Settings → GPU → Vulkan</span></td></tr>
+              <tr><td>Intel Arc (A-series)</td><td style="color:#a580ff">SYCL / Vulkan</td><td><span class="tag-inline">Settings → GPU → Vulkan</span></td></tr>
+              <tr><td>No dedicated GPU</td><td style="color:var(--text3)">CPU-only (llama.cpp)</td><td><span class="tag-inline">Settings → GPU → Disabled</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout info">
+          <div class="callout-icon"></div>
+          <div class="callout-body">For NVIDIA users: open Settings → Hardware and set <strong>GPU Layers</strong> to <strong>-1</strong> (auto). LM Studio will offload as many layers to VRAM as possible, maximizing speed.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════
+     SECTION 2 — CAPACITY PLANNING
+═══════════════════════════════════════ -->
+<div class="section" id="capacity">
+  <div class="section-header">
+    <div class="section-tag">// 02 — Capacity Planning</div>
+    <h2>System Capacity Planning</h2>
+    <p class="section-desc">Choosing a model that fits your hardware is critical. The wrong choice means slow generation, OOM crashes, or degraded quality from over-quantization.</p>
+  </div>
+
+  <!-- the formula -->
+  <div class="card" style="background:linear-gradient(135deg,#0e1420,#111a22);border-color:#1a2535;margin-bottom:32px;">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">The VRAM Formula</div>
+    <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:var(--text);margin-bottom:12px;line-height:1.5;">
+      VRAM<sub style="font-size:14px;color:var(--text3)">needed</sub> = (Params × Bits/8) + (ctx × 0.5 MB)
+    </div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:16px;">Example: 7B model at Q4_K_M (4 bits) + 4096 ctx = (7×10⁹ × 4/8) ÷ 10⁹ + 2 ≈ <span style="color:var(--accent)">5.5 GB VRAM</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+      <div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:6px;">
+        <div style="font-family:var(--mono);font-size:20px;font-weight:600;color:var(--accent)">Q2</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">~2 bits/param<br>smallest</div>
+      </div>
+      <div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:6px;">
+        <div style="font-family:var(--mono);font-size:20px;font-weight:600;color:var(--accent2)">Q4</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">~4 bits/param<br>sweet spot</div>
+      </div>
+      <div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:6px;">
+        <div style="font-family:var(--mono);font-size:20px;font-weight:600;color:#a580ff">Q6</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">~6 bits/param<br>near-lossless</div>
+      </div>
+      <div style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:6px;">
+        <div style="font-family:var(--mono);font-size:20px;font-weight:600;color:var(--text2)">F16</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">16 bits/param<br>full quality</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- tier table -->
+  <div class="cap-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tier</th>
+          <th>VRAM</th>
+          <th>System RAM</th>
+          <th>Recommended Models</th>
+          <th>Expected Speed</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tier-badge tier-entry">Entry</span></td>
+          <td>4 GB</td>
+          <td>16 GB</td>
+          <td>3B–7B Q2_K / Q3_K</td>
+          <td>8–18 tok/s</td>
+          <td>Usable for chat, limited ctx</td>
+        </tr>
+        <tr>
+          <td><span class="tier-badge tier-mid">Mid</span></td>
+          <td>8 GB</td>
+          <td>32 GB</td>
+          <td>7B Q4_K_M / 13B Q2</td>
+          <td>20–45 tok/s</td>
+          <td>Good balance, RTX 3070/4060ti</td>
+        </tr>
+        <tr>
+          <td><span class="tier-badge tier-pro">Pro</span></td>
+          <td>16 GB</td>
+          <td>64 GB</td>
+          <td>13B Q6 / 34B Q4_K_M</td>
+          <td>25–40 tok/s</td>
+          <td>RTX 3090/4080, excellent quality</td>
+        </tr>
+        <tr>
+          <td><span class="tier-badge tier-max">Max</span></td>
+          <td>24 GB+</td>
+          <td>128 GB</td>
+          <td>70B Q4 / 34B Q8 / MoE</td>
+          <td>10–25 tok/s</td>
+          <td>RTX 3090/4090, top-tier output</td>
+        </tr>
+        <tr>
+          <td><span class="tier-badge" style="background:rgba(100,100,100,0.15);color:var(--text3)">CPU</span></td>
+          <td>None</td>
+          <td>32 GB+</td>
+          <td>7B Q4_K_M (RAM-based)</td>
+          <td>2–8 tok/s</td>
+          <td>Slow but works; needs fast RAM</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- performance tuning -->
+  <div style="margin-top:40px;">
+    <h3 style="margin-bottom:16px;">Key Performance Settings</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="card">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Context Length (ctx)</div>
+        <p style="font-size:13.5px;color:var(--text2);margin-bottom:12px;">Larger context = more VRAM + slower speed. Don't set higher than you need.</p>
+        <div class="perf-item">
+          <div class="perf-label"><span class="name">2048 ctx</span><span class="val">minimal VRAM impact</span></div>
+          <div class="perf-bar-bg"><div class="perf-bar" style="width:20%;background:var(--accent);"></div></div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label"><span class="name">4096 ctx</span><span class="val">+~0.5 GB VRAM</span></div>
+          <div class="perf-bar-bg"><div class="perf-bar" style="width:40%;background:var(--accent);"></div></div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label"><span class="name">8192 ctx</span><span class="val">+~2 GB VRAM</span></div>
+          <div class="perf-bar-bg"><div class="perf-bar" style="width:65%;background:var(--accent2);"></div></div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label"><span class="name">32768 ctx</span><span class="val">+~8 GB VRAM</span></div>
+          <div class="perf-bar-bg"><div class="perf-bar" style="width:95%;background:var(--danger);"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">GPU Layers Offloading</div>
+        <p style="font-size:13.5px;color:var(--text2);margin-bottom:12px;">Layers offloaded to GPU run ~10× faster than CPU. Set to <span class="tag-inline">-1</span> for auto-max.</p>
+        <div class="perf-item">
+          <div class="perf-label"><span class="name">0 layers (CPU)</span><span class="val">2–6 tok/s</span></div>
+          <div class="perf-bar-bg"><div class="perf-bar" style="width:8%;background:var(--text3);"></div></div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label"><span class="name">50% layers GPU</span><span class="val">12–20 tok/s</span></div>
+          <div class="perf-bar-bg"><div class="perf-bar" style="width:45%;background:var(--accent2);"></div></div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label"><span class="name">100% layers GPU</span><span class="val">25–55 tok/s</span></div>
+          <div class="perf-bar-bg"><div class="perf-bar" style="width:100%;background:var(--accent);"></div></div>
+        </div>
+        <div class="callout tip" style="margin-top:14px;padding:10px 14px;">
+          <div class="callout-icon"></div>
+          <div class="callout-body" style="font-size:12px;">If the model doesn't fully fit in VRAM, LM Studio automatically splits layers between VRAM and RAM.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Settings Card -->
+  <div style="margin-top:24px;">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">lm studio — advanced model config</span>
+        <button class="code-copy" onclick="copyCode(this)">copy</button>
+      </div>
+      <div class="code-content"><span class="cm"># Optimal settings for a 7B model on 8 GB VRAM GPU</span>
+
+<span class="kw">GPU Layers</span>     : <span class="num">-1</span>          <span class="cm"># auto-max offload</span>
+<span class="kw">Context Length</span> : <span class="num">4096</span>        <span class="cm"># balance ctx vs VRAM</span>
+<span class="kw">Batch Size</span>     : <span class="num">512</span>         <span class="cm"># higher = faster prompt processing</span>
+<span class="kw">Threads</span>        : <span class="num">8</span>           <span class="cm"># match your CPU physical core count</span>
+<span class="kw">Flash Attn</span>     : <span class="str">enabled</span>     <span class="cm"># reduces VRAM ~20%, speeds attention</span>
+<span class="kw">mmap</span>           : <span class="str">enabled</span>     <span class="cm"># memory-mapped I/O for fast model load</span>
+<span class="kw">mlock</span>          : <span class="str">disabled</span>    <span class="cm"># only enable if you have ample RAM</span>
+
+<span class="cm"># Sampler settings for consistent, quality output</span>
+<span class="kw">Temperature</span>    : <span class="num">0.7</span>
+<span class="kw">Top-P</span>          : <span class="num">0.95</span>
+<span class="kw">Repeat Penalty</span> : <span class="num">1.1</span>
+<span class="kw">Min-P</span>          : <span class="num">0.05</span></div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════
+     SECTION 3 — MODELS
+═══════════════════════════════════════ -->
+<div class="section" id="models">
+  <div class="section-header">
+    <div class="section-tag">// 03 — Model Selection</div>
+    <h2>Choosing the Right Model</h2>
+    <p class="section-desc">LM Studio connects to Hugging Face and its own registry. Pick based on your use case and hardware tier.</p>
+  </div>
+
+  <div class="model-grid">
+    <div class="model-card cat-coding">
+      <div class="model-badge">Coding</div>
+      <div class="model-name">Qwen2.5-Coder-7B</div>
+      <div class="model-meta">7B params · GGUF Q4_K_M · ~4.5 GB</div>
+      <div class="model-req"><span>Best for:</span> Code gen, completion, debugging</div>
+      <div class="model-req"><span>Min VRAM:</span> 6 GB</div>
+      <div class="callout tip" style="margin-top:12px;padding:8px 12px;font-size:12px;">
+        <div class="callout-icon"></div>
+        <div class="callout-body">Top pick for VS Code integration. Fast, accurate, context-aware code completion.</div>
+      </div>
+    </div>
+    <div class="model-card cat-coding">
+      <div class="model-badge">Coding</div>
+      <div class="model-name">DeepSeek-Coder-V2</div>
+      <div class="model-meta">16B MoE · GGUF Q4 · ~10 GB</div>
+      <div class="model-req"><span>Best for:</span> Complex codebases, refactoring</div>
+      <div class="model-req"><span>Min VRAM:</span> 12 GB</div>
+    </div>
+    <div class="model-card cat-general">
+      <div class="model-badge">General</div>
+      <div class="model-name">Llama-3.2-8B-Instruct</div>
+      <div class="model-meta">8B params · GGUF Q4_K_M · ~5.5 GB</div>
+      <div class="model-req"><span>Best for:</span> Chat, writing, Q&amp;A</div>
+      <div class="model-req"><span>Min VRAM:</span> 6 GB</div>
+    </div>
+    <div class="model-card cat-general">
+      <div class="model-badge">General</div>
+      <div class="model-name">Mistral-7B-Instruct-v0.3</div>
+      <div class="model-meta">7B params · GGUF Q5_K_M · ~5 GB</div>
+      <div class="model-req"><span>Best for:</span> General tasks, summarization</div>
+      <div class="model-req"><span>Min VRAM:</span> 6 GB</div>
+    </div>
+    <div class="model-card cat-reasoning">
+      <div class="model-badge">Reasoning</div>
+      <div class="model-name">Phi-4 (14B)</div>
+      <div class="model-meta">14B params · GGUF Q4_K_M · ~9 GB</div>
+      <div class="model-req"><span>Best for:</span> Math, logic, STEM</div>
+      <div class="model-req"><span>Min VRAM:</span> 10 GB</div>
+    </div>
+    <div class="model-card cat-reasoning">
+      <div class="model-badge">Reasoning</div>
+      <div class="model-name">Gemma-3-27B-IT</div>
+      <div class="model-meta">27B params · GGUF Q4 · ~18 GB</div>
+      <div class="model-req"><span>Best for:</span> Deep analysis, multilingual</div>
+      <div class="model-req"><span>Min VRAM:</span> 20 GB</div>
+    </div>
+  </div>
+
+  <div class="callout info" style="margin-top:24px;">
+    <div class="callout-icon"></div>
+    <div class="callout-body"><strong>Quantization guide:</strong> Q4_K_M is the best all-around choice — it loses less than 1% quality vs full F16 while using half the VRAM. Q5_K_M and Q6_K are great if you have headroom. Avoid Q2 unless you are severely VRAM-constrained.</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════
+     SECTION 4 — LOADING MODELS
+═══════════════════════════════════════ -->
+<div class="section" id="load">
+  <div class="section-header">
+    <div class="section-tag">// 04 — Loading Models</div>
+    <h2>Download &amp; Load a Model</h2>
+    <p class="section-desc">You can discover and load models directly from the LM Studio UI, the CLI, or by pointing to a local GGUF file.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(this,'tab-ui')">UI Method</button>
+    <button class="tab-btn" onclick="switchTab(this,'tab-cli')">CLI Method</button>
+    <button class="tab-btn" onclick="switchTab(this,'tab-local')">Local GGUF</button>
+  </div>
+
+  <div id="tab-ui" class="tab-panel active">
+    <div class="steps" style="margin-top:8px;">
+      <div class="step">
+        <div class="step-num-col"><div class="step-num" style="width:32px;height:32px;font-size:12px;">1</div><div class="step-line"></div></div>
+        <div class="step-content">
+          <h3>Open the Discover Tab</h3>
+          <p style="color:var(--text2);">Click the <strong style="color:var(--text)">🔍 Search</strong> (magnifying glass) icon in the left sidebar to open the model discovery panel.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-col"><div class="step-num" style="width:32px;height:32px;font-size:12px;">2</div><div class="step-line"></div></div>
+        <div class="step-content">
+          <h3>Search for a Model</h3>
+          <p style="color:var(--text2);">Type a model name in the search bar (e.g., <span class="tag-inline">qwen2.5-coder</span>). Results pull from Hugging Face. Use filters to narrow by size and quantization.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-col"><div class="step-num" style="width:32px;height:32px;font-size:12px;">3</div><div class="step-line"></div></div>
+        <div class="step-content">
+          <h3>Select a GGUF Variant</h3>
+          <p style="color:var(--text2);">Expand the model card, choose a quant variant (look for <span class="tag-inline">Q4_K_M</span> or <span class="tag-inline">Q5_K_M</span>), and click <strong style="color:var(--accent)">Download</strong>.</p>
+          <div class="callout tip">
+            <div class="callout-icon"></div>
+            <div class="callout-body">LM Studio shows the file size before download and estimates if it fits in your VRAM — pay attention to the green/yellow/red indicators.</div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-col"><div class="step-num" style="width:32px;height:32px;font-size:12px;">4</div></div>
+        <div class="step-content">
+          <h3>Load the Model</h3>
+          <p style="color:var(--text2);">After download, switch to the <strong style="color:var(--text)">Chat</strong> tab. Click the model selector at the top, choose your model, and wait for the green "Model loaded" indicator. You're ready.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-cli" class="tab-panel">
+    <div class="code-block" style="margin-top:8px;">
+      <div class="code-header">
+        <span class="code-lang">powershell — lms CLI</span>
+        <button class="code-copy" onclick="copyCode(this)">copy</button>
+      </div>
+      <div class="code-content"><span class="cm"># Search for available models</span>
+<span class="fn">lms</span> search <span class="str">"qwen2.5-coder"</span>
+
+<span class="cm"># Download a specific model (auto-picks best quant for your hardware)</span>
+<span class="fn">lms</span> get <span class="str">Qwen/Qwen2.5-Coder-7B-Instruct-GGUF</span>
+
+<span class="cm"># Download a specific quantization</span>
+<span class="fn">lms</span> get <span class="str">Qwen/Qwen2.5-Coder-7B-Instruct-GGUF</span> <span class="kw">--quant</span> <span class="str">q4_k_m</span>
+
+<span class="cm"># List all downloaded models</span>
+<span class="fn">lms</span> ls
+
+<span class="cm"># Load a model into the server</span>
+<span class="fn">lms</span> load <span class="str">qwen2.5-coder-7b-instruct</span>
+
+<span class="cm"># Load with custom context length</span>
+<span class="fn">lms</span> load <span class="str">qwen2.5-coder-7b-instruct</span> <span class="kw">--context-length</span> <span class="num">8192</span>
+
+<span class="cm"># Unload to free VRAM</span>
+<span class="fn">lms</span> unload <span class="kw">--all</span>
+
+<span class="cm"># Quick chat from terminal</span>
+<span class="fn">lms</span> chat <span class="kw">--model</span> <span class="str">qwen2.5-coder-7b-instruct</span></div>
+    </div>
+  </div>
+
+  <div id="tab-local" class="tab-panel">
+    <p style="color:var(--text2);margin:8px 0 16px;">If you've downloaded a GGUF file manually (e.g., from Hugging Face website), point LM Studio to it.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">file structure</span>
+      </div>
+      <div class="code-content"><span class="cm"># Default model directory (customizable in Settings)</span>
+C:\Users\YourName\.cache\lm-studio\models\
+  └── lmstudio-community\
+      └── Qwen2.5-Coder-7B-Instruct-GGUF\
+          ├── qwen2.5-coder-7b-instruct-q4_k_m.gguf   <span class="cm">← main file</span>
+          └── README.md</div>
+    </div>
+    <ul class="checklist" style="margin-top:16px;">
+      <li>Download the <span class="tag-inline">.gguf</span> file from Hugging Face (any model page → Files tab)</li>
+      <li>Place it inside the <span class="tag-inline">.cache\lm-studio\models\author\model-name\</span> folder</li>
+      <li>In LM Studio, go to <strong style="color:var(--text)">My Models</strong> tab — it will appear automatically</li>
+      <li>Alternatively use Settings → Change models folder to point to a custom directory</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════
+     SECTION 5 — VSCODE INTEGRATION
+═══════════════════════════════════════ -->
+<div class="section" id="vscode">
+  <div class="section-header">
+    <div class="section-tag">// 05 — VS Code Integration</div>
+    <h2>Integrate with VS Code</h2>
+    <p class="section-desc">LM Studio exposes an OpenAI-compatible REST API on <span class="tag-inline">localhost:1234</span>. Any VS Code AI extension that supports custom endpoints can use it.</p>
+  </div>
+
+  <!-- start server first -->
+  <div class="card" style="margin-bottom:28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+    <div style="font-size:32px;">⚡</div>
+    <div>
+      <div style="font-family:var(--display);font-weight:600;margin-bottom:6px;">First: Start the Local Server</div>
+      <p style="font-size:13.5px;color:var(--text2);">In LM Studio, click the <strong style="color:var(--text)">↔ Developer</strong> tab in the left sidebar → click <strong style="color:var(--accent)">Start Server</strong>. You'll see it bind to <span class="tag-inline">http://localhost:1234</span>. Keep LM Studio running in the background while coding.</p>
+    </div>
+  </div>
+
+  <div class="integration-grid">
+
+    <!-- Continue.dev -->
+    <div class="int-card">
+      <div class="int-card-header">
+        <div class="int-icon vscode">🔵</div>
+        <div class="int-title">Continue.dev Extension</div>
+      </div>
+      <div class="int-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">The best open-source AI coding assistant for VS Code. Supports inline completion, chat, and code edits powered by your local model.</p>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">1. Install the extension</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">vs code command palette</span></div>
+          <div class="code-content">ext install Continue.continue</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;">2. Edit ~/.continue/config.json</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">json</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+          <div class="code-content">{
+  <span class="str">"models"</span>: [{
+    <span class="str">"title"</span>: <span class="str">"LM Studio"</span>,
+    <span class="str">"provider"</span>: <span class="str">"lmstudio"</span>,
+    <span class="str">"model"</span>: <span class="str">"AUTODETECT"</span>
+  }],
+  <span class="str">"tabAutocompleteModel"</span>: {
+    <span class="str">"title"</span>: <span class="str">"Qwen2.5-Coder"</span>,
+    <span class="str">"provider"</span>: <span class="str">"lmstudio"</span>,
+    <span class="str">"model"</span>: <span class="str">"qwen2.5-coder-7b-instruct"</span>
+  }
+}</div>
+        </div>
+        <div class="callout tip" style="margin-top:10px;">
+          <div class="callout-icon"></div>
+          <div class="callout-body" style="font-size:12px;">Continue has a built-in LM Studio provider — no URL config needed. It auto-discovers the running model.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cline -->
+    <div class="int-card">
+      <div class="int-card-header">
+        <div class="int-icon api">🟢</div>
+        <div class="int-title">Cline (Claude-like Agent)</div>
+      </div>
+      <div class="int-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Cline is an agentic coding assistant that can read/write files, run commands, and browse. Works with local models via OpenAI-compatible API.</p>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">1. Install Cline</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">vs code command palette</span></div>
+          <div class="code-content">ext install saoudrizwan.claude-dev</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;">2. Configure in Cline Settings</div>
+        <ul class="checklist" style="font-size:13px;">
+          <li>API Provider: <span class="tag-inline">OpenAI Compatible</span></li>
+          <li>Base URL: <span class="tag-inline">http://localhost:1234/v1</span></li>
+          <li>API Key: <span class="tag-inline">lm-studio</span> (any value)</li>
+          <li>Model: <span class="tag-inline">qwen2.5-coder-7b-instruct</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Generic OpenAI-compatible setup -->
+  <div style="margin-top:24px;">
+    <h3 style="margin-bottom:16px;">Any OpenAI-Compatible Extension</h3>
+    <p style="color:var(--text2);margin-bottom:16px;font-size:14px;">Almost any AI coding tool (Copilot alternatives, chat plugins) that supports a custom OpenAI endpoint works out-of-the-box with LM Studio's local server.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">connection details</span>
+        <button class="code-copy" onclick="copyCode(this)">copy</button>
+      </div>
+      <div class="code-content"><span class="kw">Base URL</span>   : <span class="str">http://localhost:1234/v1</span>
+<span class="kw">API Key</span>    : <span class="str">lm-studio</span>  <span class="cm"># any string, it is ignored</span>
+<span class="kw">Model ID</span>   : <span class="str">your-model-name</span>  <span class="cm"># match exactly what lms ps shows</span>
+
+<span class="cm"># Test with curl (PowerShell)</span>
+<span class="fn">curl</span> http://localhost:<span class="num">1234</span>/v1/chat/completions `
+  <span class="kw">-H</span> <span class="str">"Content-Type: application/json"</span> `
+  <span class="kw">-d</span> <span class="str">'{"model":"qwen2.5-coder-7b-instruct","messages":[{"role":"user","content":"Hello!"}]}'</span></div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════
+     SECTION 6 — API / CODE USE
+═══════════════════════════════════════ -->
+<div class="section" id="api">
+  <div class="section-header">
+    <div class="section-tag">// 06 — API &amp; Code Integration</div>
+    <h2>Use LM Studio from Code</h2>
+    <p class="section-desc">The local server is fully OpenAI-compatible. Drop in your existing OpenAI code and change the base URL — nothing else needs to change.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(this,'code-py')">Python</button>
+    <button class="tab-btn" onclick="switchTab(this,'code-js')">JavaScript</button>
+    <button class="tab-btn" onclick="switchTab(this,'code-cs')">C#</button>
+  </div>
+
+  <div id="code-py" class="tab-panel active">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">python</span>
+        <button class="code-copy" onclick="copyCode(this)">copy</button>
+      </div>
+      <div class="code-content"><span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+
+<span class="cm"># Point the openai client at LM Studio</span>
+client = <span class="fn">OpenAI</span>(
+    base_url=<span class="str">"http://localhost:1234/v1"</span>,
+    api_key=<span class="str">"lm-studio"</span>  <span class="cm"># ignored, can be anything</span>
+)
+
+<span class="cm"># Standard chat completion — identical to openai API</span>
+response = client.chat.completions.<span class="fn">create</span>(
+    model=<span class="str">"qwen2.5-coder-7b-instruct"</span>,
+    messages=[
+        {<span class="str">"role"</span>: <span class="str">"system"</span>, <span class="str">"content"</span>: <span class="str">"You are a helpful coding assistant."</span>},
+        {<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"Write a Python function to reverse a linked list."</span>}
+    ],
+    temperature=<span class="num">0.7</span>,
+    max_tokens=<span class="num">1024</span>
+)
+
+<span class="fn">print</span>(response.choices[<span class="num">0</span>].message.content)
+
+<span class="cm"># Streaming response</span>
+stream = client.chat.completions.<span class="fn">create</span>(
+    model=<span class="str">"qwen2.5-coder-7b-instruct"</span>,
+    messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"Explain async/await in Python"</span>}],
+    stream=<span class="kw">True</span>
+)
+<span class="kw">for</span> chunk <span class="kw">in</span> stream:
+    <span class="fn">print</span>(chunk.choices[<span class="num">0</span>].delta.content <span class="kw">or</span> <span class="str">""</span>, end=<span class="str">""</span>, flush=<span class="kw">True</span>)</div>
+    </div>
+  </div>
+
+  <div id="code-js" class="tab-panel">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">javascript / node.js</span>
+        <button class="code-copy" onclick="copyCode(this)">copy</button>
+      </div>
+      <div class="code-content"><span class="kw">import</span> OpenAI <span class="kw">from</span> <span class="str">'openai'</span>;  <span class="cm">// npm install openai</span>
+
+<span class="kw">const</span> client = <span class="kw">new</span> <span class="fn">OpenAI</span>({
+  baseURL: <span class="str">'http://localhost:1234/v1'</span>,
+  apiKey:  <span class="str">'lm-studio'</span>,
+});
+
+<span class="cm">// Chat completion</span>
+<span class="kw">const</span> completion = <span class="kw">await</span> client.chat.completions.<span class="fn">create</span>({
+  model:    <span class="str">'qwen2.5-coder-7b-instruct'</span>,
+  messages: [
+    { role: <span class="str">'system'</span>, content: <span class="str">'You are a helpful coding assistant.'</span> },
+    { role: <span class="str">'user'</span>,   content: <span class="str">'Generate a REST API in Express.js'</span> }
+  ],
+  temperature: <span class="num">0.7</span>,
+});
+
+console.<span class="fn">log</span>(completion.choices[<span class="num">0</span>].message.content);
+
+<span class="cm">// Streaming</span>
+<span class="kw">const</span> stream = <span class="kw">await</span> client.chat.completions.<span class="fn">create</span>({
+  model: <span class="str">'qwen2.5-coder-7b-instruct'</span>,
+  messages: [{ role: <span class="str">'user'</span>, content: <span class="str">'Write a quicksort in TypeScript'</span> }],
+  stream: <span class="kw">true</span>,
+});
+<span class="kw">for await</span> (<span class="kw">const</span> chunk <span class="kw">of</span> stream) {
+  process.stdout.<span class="fn">write</span>(chunk.choices[<span class="num">0</span>]?.delta?.content ?? <span class="str">''</span>);
+}</div>
+    </div>
+  </div>
+
+  <div id="code-cs" class="tab-panel">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">c# — using openai .net sdk</span>
+        <button class="code-copy" onclick="copyCode(this)">copy</button>
+      </div>
+      <div class="code-content"><span class="cm">// dotnet add package OpenAI</span>
+<span class="kw">using</span> OpenAI;
+<span class="kw">using</span> OpenAI.Chat;
+
+<span class="kw">var</span> client = <span class="kw">new</span> <span class="fn">OpenAIClient</span>(
+    <span class="kw">new</span> <span class="fn">Uri</span>(<span class="str">"http://localhost:1234/v1"</span>),
+    <span class="kw">new</span> <span class="fn">ApiKeyCredential</span>(<span class="str">"lm-studio"</span>)
+);
+
+<span class="kw">var</span> chatClient = client.<span class="fn">GetChatClient</span>(<span class="str">"qwen2.5-coder-7b-instruct"</span>);
+
+<span class="kw">var</span> response = <span class="kw">await</span> chatClient.<span class="fn">CompleteChatAsync</span>(
+    <span class="kw">new</span>[] {
+        <span class="kw">new</span> <span class="fn">SystemChatMessage</span>(<span class="str">"You are a helpful coding assistant."</span>),
+        <span class="kw">new</span> <span class="fn">UserChatMessage</span>(<span class="str">"How do I use LINQ in C#?"</span>),
+    }
+);
+
+Console.<span class="fn">WriteLine</span>(response.Value.Content[<span class="num">0</span>].Text);</div>
+    </div>
+  </div>
+
+  <div class="callout info" style="margin-top:24px;">
+    <div class="callout-icon"></div>
+    <div class="callout-body"><strong>Available Endpoints:</strong> LM Studio supports <span class="tag-inline">GET /v1/models</span>, <span class="tag-inline">POST /v1/chat/completions</span>, <span class="tag-inline">POST /v1/completions</span>, and <span class="tag-inline">POST /v1/embeddings</span> — covering virtually all use cases including RAG pipelines with local embeddings.</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div style="margin-bottom:12px;">
+    <a href="https://lmstudio.ai">lmstudio.ai</a> · 
+    <a href="https://docs.lmstudio.ai">docs</a> · 
+    <a href="https://github.com/lmstudio-ai">github</a> · 
+    <a href="https://discord.gg/aPQfnNkxGC">discord</a>
+  </div>
+  <div>Static guide · content accurate as of 2025 · LM Studio v0.3.x · not affiliated with LM Studio AI</div>
+</footer>
+
+<script>
+function switchTab(btn, id) {
+  const container = btn.closest('.section') || document.body;
+  const allBtns = btn.parentElement.querySelectorAll('.tab-btn');
+  allBtns.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const panels = document.querySelectorAll('#' + btn.parentElement.nextElementSibling.id).length
+    ? [] : [...document.querySelectorAll('.tab-panel')].filter(p => p.parentElement === btn.parentElement.nextElementSibling?.parentElement || p.parentElement === btn.closest('.section'));
+  const allPanels = btn.parentElement.parentElement.querySelectorAll('.tab-panel');
+  allPanels.forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+}
+
+function copyCode(btn) {
+  const block = btn.closest('.code-block');
+  const content = block.querySelector('.code-content');
+  const text = content.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy', 2000);
+  });
+}
+</script>
+
+</body>
+</html>
